@@ -8,6 +8,7 @@ steps:
 2) Generate a:
 	- dates file
 		#dates = open(sys.argv[1]+"/dates").read().strip().split()
+		* lijst van dates
 	- daily_volumes file:
 		#while True:
         	#line = fin.readline()
@@ -22,7 +23,8 @@ steps:
 		#  term2, v1, v2, .... vN
 		#  ...
 		#  termK, v1, v2, .... vN
+		* docfreq of tf per dag per term
 	- gross_daily_volumes file
 		#vols = map(int, open(sys.argv[1]+'/gross_daily_volumes').read().strip().split())
-
+		* total # terms during day
 
