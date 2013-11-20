@@ -1,5 +1,7 @@
+*3log
 *.pyc
 *~
 Reuters/
 venv/
 mucindex/
+
