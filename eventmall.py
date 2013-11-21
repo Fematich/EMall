@@ -59,9 +59,9 @@ class EventMallCorpus():
                     faid = next_field(f)
                     if faid == None: 
                         break
-                    did = int(faid[3:-2])
-                    date = datetime.strptime(next_field(f)[5:-2],'%Y%M%d')
-                    durl = next_field(f)[4:-2]
+                    did = int(faid[3:-2].decode('utf'))
+                    date = datetime.strptime(next_field(f).decode('utf')[5:-2],'%Y%M%d')
+                    durl = next_field(f)[4:-2].decode('utf')
                     title = next_field(f)[6:-2].decode('utf')#.decode('gbk')
                     body = next_field(f)[5:-2].decode('utf')#.decode('gbk')
                     frecord = f.readline()
@@ -91,7 +91,7 @@ class EventMallCorpus():
             logger.error('index already exists!')
             return
         #fill index with entries    
-        writer = ix.writer(procs=4, limitmb=1024, multisegment=True) 
+        writer = ix.writer(procs=1, limitmb=1024)#, multisegment=True) 
         cnt=0
         cnts=0
         for doc in self.__iter__():
