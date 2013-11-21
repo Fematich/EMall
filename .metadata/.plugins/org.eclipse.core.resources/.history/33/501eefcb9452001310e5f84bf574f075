@@ -1,0 +1,82 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import com.sun.java_cup.internal.runtime.Scanner;
+
+public class converter {
+
+	/**
+	 * @param args
+	 * @throws IOException 
+	 */
+	
+	public void parse(String file) throws IOException{
+		String    endchar  = Character.toString((char) 31);
+		System.out.println(file);
+		String filepath="/home/mfeys/work/data/event_mall/old_dat/"+file;
+		InputStreamReader read1 = new InputStreamReader(new FileInputStream(filepath), "GBK");
+		BufferedReader br1 = new BufferedReader(read1);
+		Scanner s = new Scanner(br1).useDelimiter(endchar);
+		try {
+			while (( s.hasNext()){
+				/*
+				 * TODO: select only body and title parts to perform tokenization on::: 
+				 * segment=false
+				 * if starts with body/title segment true
+				 * if segment==true: segment part
+				 * if ends with '\x1e\n' -> segment=false
+				 * if
+				 */
+				System.out.println(s.next());
+			    }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+	}
+	
+	public static void main(String[] args) throws IOException {
+		// TODO Auto-generated method stub
+		//String file=args[0];
+		String file="dat0";
+		System.out.println(file);
+		parse(file);
+//		String filepath="/home/mfeys/work/data/event_mall/old_dat/"+file;
+//		InputStreamReader read1 = new InputStreamReader(new FileInputStream(filepath), "GBK");
+//		BufferedReader br1 = new BufferedReader(read1);
+//		String line = null; //not declared within while loop
+//		Segmenter sgm = new Segmenter();
+//
+//		String newpath = "/home/mfeys/work/data/event_mall/testdat/"+file;
+//		File wfile = new File(newpath);
+//		wfile.createNewFile();
+//		FileWriter fw = new FileWriter(wfile.getAbsoluteFile());
+//		BufferedWriter bw = new BufferedWriter(fw);
+//		try {
+//			while (( line = br1.readLine()) != null){
+//				/*
+//				 * TODO: select only body and title parts to perform tokenization on::: 
+//				 * segment=false
+//				 * if starts with body/title segment true
+//				 * if segment==true: segment part
+//				 * if ends with '\x1e\n' -> segment=false
+//				 * if
+//				 */
+//				bw.write(sgm.tokenize(line)+'\n');
+//			    }
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}  
+//		bw.close();
+//		System.out.println("Done");
+	}
+
+}
+

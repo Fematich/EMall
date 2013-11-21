@@ -4,12 +4,12 @@
 @date:      Wed Nov 20 15:22:12 2013
 """
 import jpype,os
-from whoosh.analysis import Token
+from whoosh.analysis import Token,Tokenizer
 import logging
 
 logger=logging.getLogger("ChineseTokenizer")
 
-class ChineseTokenizer():
+class ChineseTokenizer(Tokenizer):
     def  __init__(self):
         jpype.startJVM(jpype.getDefaultJVMPath(), "-ea", 
                        "-Djava.class.path=%s:%s"%(os.path.abspath('./Segmenter/bin'),
@@ -25,5 +25,7 @@ class ChineseTokenizer():
         for word in words:
             token.text=word
             yield token
-    def __getstate__(self):
-        return self
+    
+    def __getstate__ ( self ):
+        state = {}
+        return state
