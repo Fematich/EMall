@@ -50,7 +50,8 @@ class EventMallCorpus():
         logger.info('corpus initialised/loaded')
         
     def __iter__(self):
-        for fname in sorted(os.listdir(self.datadir)):
+#        for fname in sorted(os.listdir(self.datadir)):
+        for fname in ['dat'+str(tel) for tel in range(112)]:
             with open(os.path.join(self.datadir,fname),'rb') as f:
                 logger.info('opening: %s'%fname)
                 while True:
@@ -77,7 +78,8 @@ class EventMallCorpus():
                         date=DATETIME(stored=True),
                         durl=ID,
                         title=TEXT(phrase=False),
-                        body=TEXT(analyzer=ChineseTokenizer(),phrase=False,vector=Frequency),
+#                        body=TEXT(analyzer=ChineseTokenizer(),phrase=False,vector=Frequency),
+                        body=TEXT(phrase=False,vector=Frequency),
                         dfile=STORED,
                         offset=STORED
                         )

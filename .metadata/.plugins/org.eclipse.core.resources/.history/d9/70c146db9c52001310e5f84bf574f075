@@ -29,7 +29,7 @@ public class converter {
 		Scanner s = new Scanner(br1);
 		s.useDelimiter(endchar);
 		//writing file
-		String newpath = "/home/mfeys/work/data/event_mall/dat/"+file;
+		String newpath = "/home/mfeys/work/data/event_mall/testdat/"+file;
 		File wfile = new File(newpath);
 		wfile.createNewFile();
 		FileWriter fw = new FileWriter(wfile.getAbsoluteFile());
@@ -68,5 +68,6 @@ public class converter {
 			parse("dat"+i);
 		}
 	}
+
 }
 
