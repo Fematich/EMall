@@ -16,57 +16,143 @@ public class converter {
 	 * @throws IOException 
 	 */
 	
-	public static void parse(String file) throws IOException{
-		String    endchar  = Character.toString((char) 30);
-		String    endbchar  = Character.toString((char) 31);
-		
+	public static String parseblock(String block) throws IOException{
 		Segmenter sgm = new Segmenter();
+		String    endchar  = Character.toString((char) 30);
+		String ret = "";
+		Scanner sb = new Scanner(block);
+		sb.useDelimiter(endchar);
+		try{
+			String idline=sb.next();
+			if(idline.startsWith("\nid=") | idline.startsWith("id=")){
+				ret+=idline+endchar;
+			}
+			else{
+				System.out.println("error in idline "+idline);
+				return "";
+			}
+			String tline=sb.next();
+			if(tline.startsWith("\ntime=")){
+				ret+=tline+endchar;
+			}
+			else{
+				System.out.println("error in tline "+tline);
+				return "";
+			}
+			String uline=sb.next();
+			if(uline.startsWith("\nurl=")){
+				ret+=uline+endchar;
+			}
+			else{
+				System.out.println("error in uline "+uline);
+				return "";
+			}
+			String title=sb.next();
+			if(title.startsWith("\ntitle=")){
+				ret+="\ntitle="+sgm.tokenize(title.substring(7))+endchar;
+			}
+			else{
+				System.out.println("error in title "+title);
+				return "";
+			}
+			String body=sb.next();
+			if(body.startsWith("\nbody=")){
+				ret+="\nbody="+sgm.tokenize(body.substring(6))+endchar+'\n';	
+				return ret;
+			}
+			else{
+				System.out.println("error in body "+body);
+				return "";
+			}
+		}
+		catch(Exception e){
+			System.out.println("other error");
+			return "";
+		}
+	}
+
+	
+	public static void parsefile(String file) throws IOException{
+		String    endbchar  = Character.toString((char) 31);
 		// reading file
-		System.out.println(file);
+		System.out.println("parsing "+file);
 		String filepath="/home/mfeys/work/data/event_mall/old_dat/"+file;
-		InputStreamReader read1 = new InputStreamReader(new FileInputStream(filepath), "GBK");
+//		InputStreamReader read1 = new InputStreamReader(new FileInputStream(filepath), "GBK");
+		InputStreamReader read1 = new InputStreamReader(new FileInputStream(filepath), "GB18030");
 		BufferedReader br1 = new BufferedReader(read1);
 		Scanner s = new Scanner(br1);
-		s.useDelimiter(endchar);
+		s.useDelimiter(endbchar);
+		//writing file
+		String newpath = "/home/mfeys/work/data/event_mall/dat180/"+file;
+		File wfile = new File(newpath);
+		wfile.createNewFile();
+		FileWriter fw = new FileWriter(wfile.getAbsoluteFile());
+		BufferedWriter bw = new BufferedWriter(fw);
+		//error file
+		String errpath = "/home/mfeys/work/data/event_mall/dat180/errdat";
+		File erfile = new File(errpath);
+		erfile.createNewFile();
+		FileWriter erfw = new FileWriter(erfile.getAbsoluteFile(),true);
+		BufferedWriter erbw = new BufferedWriter(erfw);	
+		int correct=0;
+		int incorrect=0;
+		while (s.hasNext()){
+			String block=s.next();
+			String parsedBlock = parseblock(block);				
+			if(parsedBlock.equals("")){
+				erbw.write(block+endbchar);
+				correct++;
+			}
+			else{
+				bw.write(parsedBlock+endbchar);
+				incorrect++;
+			}
+		}
+		erfw.close();
+		fw.close();
+		System.out.println("STATS:"+correct+","+incorrect);
+	}
+	
+	public static void parseEfile(String file) throws IOException{
+		String    endbchar  = Character.toString((char) 31);
+		// reading file
+		System.out.println("parsing "+file);
+		String filepath="/home/mfeys/work/data/event_mall/old_dat/"+file;
+		InputStreamReader read1 = new InputStreamReader(new FileInputStream(filepath));
+		BufferedReader br1 = new BufferedReader(read1);
+		Scanner s = new Scanner(br1);
+		s.useDelimiter(endbchar);
 		//writing file
 		String newpath = "/home/mfeys/work/data/event_mall/dat/"+file;
 		File wfile = new File(newpath);
 		wfile.createNewFile();
 		FileWriter fw = new FileWriter(wfile.getAbsoluteFile());
 		BufferedWriter bw = new BufferedWriter(fw);
-		
+		//error file
+		String errpath = "/home/mfeys/work/data/event_mall/dat/errdat";
+		File erfile = new File(errpath);
+		erfile.createNewFile();
+		FileWriter erfw = new FileWriter(erfile.getAbsoluteFile(),true);
+		BufferedWriter erbw = new BufferedWriter(erfw);	
 		while (s.hasNext()){
-			String line=s.next();
-			//System.out.print("testbegin"+line+"testend");
-			//if(line.substring(1,7).equals("title=")){
-			if(line.startsWith("\ntitle=")){
-				bw.write("\ntitle="+sgm.tokenize(line.substring(7))+endchar);
-				//System.out.println("title="+sgm.tokenize(line.substring(6))+endchar+'\n');
-				//System.out.println("title");
-				
-			}
-			//else if(line.substring(1,6).equals("body=")){
-			else if(line.startsWith("\nbody=")){
-				bw.write("\nbody="+sgm.tokenize(line.substring(6))+endchar);
-				//System.out.println("body="+sgm.tokenize(line.substring(5))+endchar);
-				//System.out.println("body");
-				
+			String block=s.next();
+			String parsedBlock = parseblock(block);				
+			if(parsedBlock.equals("")){
+				erbw.write(block+endbchar);
 			}
 			else{
-				bw.write(line+endchar);
-				//System.out.println(line+endchar);
+				bw.write(parsedBlock+endbchar);
 			}
 		}
+		erfw.close();
+		fw.close();
 	}
 	
 	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-		//String file=args[0];
-//		String file="dat0";
-//		System.out.println("main function, calling:"+file);
+		System.out.println(System.getProperty("file.encoding"));
 		for(int i=0;i<112;i++){
-			parse("dat"+i);
+			parsefile("dat"+i);
 		}
+//		parseEfile("err2dat");
 	}
 }
-

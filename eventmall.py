@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
 @author:    Matthias Feys (matthiasfeys@gmail.com), IBCN (Ghent University)
@@ -9,7 +10,7 @@ module to handle the Eventmall dataset
 """
 
 
-import os,logging,re
+import os,logging,re,shutil
 from datetime import datetime
 
 import whoosh
@@ -46,26 +47,46 @@ class EventMallCorpus():
         if not os.path.exists(self.indexdir):
             logger.info('creating index...')
             self.MakeIndex()
+        else:
+            logger.info('deleting and creating index...')
+            shutil.rmtree(self.indexdir)
+            self.MakeIndex()
         self.ix=open_dir(self.indexdir)
         logger.info('corpus initialised/loaded')
         
     def __iter__(self):
 #        for fname in sorted(os.listdir(self.datadir)):
-        for fname in ['dat'+str(tel) for tel in range(112)]:
+#        for fname in ['dat'+str(tel) for tel in range(112)]:
+        for fname in ['dat'+str(tel) for tel in [0]]:
             with open(os.path.join(self.datadir,fname),'rb') as f:
                 logger.info('opening: %s'%fname)
                 while True:
-                    offset=f.tell()
-                    faid = next_field(f)
-                    if faid == None: 
-                        break
-                    did = int(faid[3:-2].decode('utf'))
-                    date = datetime.strptime(next_field(f).decode('utf')[5:-2],'%Y%M%d')
-                    durl = next_field(f)[4:-2].decode('utf')
-                    title = next_field(f)[6:-2].decode('utf')#.decode('gbk')
-                    body = next_field(f)[5:-2].decode('utf')#.decode('gbk')
-                    frecord = f.readline()
+                    try:
+                        offset=f.tell()
+                        faid = f.readline()
+                        if not faid: 
+                            break
+                        did = int(faid[3:-2].decode('utf',errors='replace'))
+                        date = datetime.strptime(f.readline().decode('utf',errors='replace')[5:-2],'%Y%M%d')
+                        durl = f.readline()[4:-2].decode('utf',errors='replace')
+                        title = f.readline()[6:-2].decode('utf',errors='replace')#.decode('gbk')
+                        body = f.readline()[5:-2].decode('utf',errors='replace')#.decode('gbk')
+                        frecord = f.readline()
+                    except Exception, e:
+                        print e, offset
                     yield did,date,durl,title,body,fname,offset
+#                while True:
+#                    offset=f.tell()
+#                    faid = next_field(f)
+#                    if faid == None: 
+#                        break
+#                    did = int(faid[3:-2].decode('utf'))
+#                    date = datetime.strptime(next_field(f).decode('utf')[5:-2],'%Y%M%d')
+#                    durl = next_field(f)[4:-2].decode('utf')
+#                    title = next_field(f)[6:-2].decode('utf')#.decode('gbk')
+#                    body = next_field(f)[5:-2].decode('utf')#.decode('gbk')
+#                    frecord = f.readline()
+#                    yield did,date,durl,title,body,fname,offset
                 
                     
         
@@ -88,10 +109,10 @@ class EventMallCorpus():
             os.mkdir(self.indexdir)
             ix = create_in(self.indexdir, schema)
         else:
-            logger.error('index already exists!')
+            logger.info('index already exists! DELETING')
             return
         #fill index with entries    
-        writer = ix.writer(procs=1, limitmb=1024)#, multisegment=True) 
+        writer = ix.writer(procs=4, limitmb=1024, multisegment=True) 
         cnt=0
         cnts=0
         for doc in self.__iter__():
@@ -110,6 +131,7 @@ class EventMallCorpus():
             except Exception, e:
                 print e,doc[3]
                 cnt+=1
+
         writer.commit()
         print 'Failed documents:%d \t Succeeded:%d'%(cnt,cnts)
 
