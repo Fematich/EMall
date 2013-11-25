@@ -57,7 +57,7 @@ class EventMallCorpus():
     def __iter__(self):
 #        for fname in sorted(os.listdir(self.datadir)):
 #        for fname in ['dat'+str(tel) for tel in range(112)]:
-        for fname in ['dat'+str(tel) for tel in range(112)]:
+        for fname in ['dat'+str(tel) for tel in range(4)]:
             with open(os.path.join(self.datadir,fname),'rb') as f:
                 logger.info('opening: %s'%fname)
 #                while True:
@@ -116,7 +116,7 @@ class EventMallCorpus():
             logger.info('index already exists! DELETING')
             return
         #fill index with entries    
-        writer = ix.writer(procs=4, limitmb=1024, multisegment=True) 
+        writer = ix.writer(procs=4, limitmb=856, multisegment=True) 
 #        first=True
         cnt=0
         cnts=0
@@ -144,7 +144,7 @@ class EventMallCorpus():
                 writer.commit()
                 writer = ix.writer()
 
-        writer.commit()
+        writer.commit(merge=False)
         print 'Failed documents:%d \t Succeeded:%d'%(cnt,cnts)
 
 
