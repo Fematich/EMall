@@ -28,7 +28,7 @@ public class converter {
 				ret+=idline+endchar;
 			}
 			else{
-				System.out.println("error in idline "+idline);
+//				System.out.println("error in idline "+idline);
 				return "";
 			}
 			String tline=sb.next();
@@ -36,7 +36,7 @@ public class converter {
 				ret+=tline+endchar;
 			}
 			else{
-				System.out.println("error in tline "+tline);
+//				System.out.println("error in tline "+tline);
 				return "";
 			}
 			String uline=sb.next();
@@ -44,7 +44,7 @@ public class converter {
 				ret+=uline+endchar;
 			}
 			else{
-				System.out.println("error in uline "+uline);
+//				System.out.println("error in uline "+uline);
 				return "";
 			}
 			String title=sb.next();
@@ -52,7 +52,7 @@ public class converter {
 				ret+="\ntitle="+sgm.tokenize(title.substring(7))+endchar;
 			}
 			else{
-				System.out.println("error in title "+title);
+//				System.out.println("error in title "+title);
 				return "";
 			}
 			String body=sb.next();
@@ -61,12 +61,12 @@ public class converter {
 				return ret;
 			}
 			else{
-				System.out.println("error in body "+body);
+//				System.out.println("error in body "+body);
 				return "";
 			}
 		}
 		catch(Exception e){
-			System.out.println("other error");
+//			System.out.println("other error");
 			return "";
 		}
 	}

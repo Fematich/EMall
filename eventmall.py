@@ -57,37 +57,41 @@ class EventMallCorpus():
     def __iter__(self):
 #        for fname in sorted(os.listdir(self.datadir)):
 #        for fname in ['dat'+str(tel) for tel in range(112)]:
-        for fname in ['dat'+str(tel) for tel in [0]]:
+        for fname in ['dat'+str(tel) for tel in range(112)]:
             with open(os.path.join(self.datadir,fname),'rb') as f:
                 logger.info('opening: %s'%fname)
-                while True:
-                    try:
-                        offset=f.tell()
-                        faid = f.readline()
-                        if not faid: 
-                            break
-                        did = int(faid[3:-2].decode('utf',errors='replace'))
-                        date = datetime.strptime(f.readline().decode('utf',errors='replace')[5:-2],'%Y%M%d')
-                        durl = f.readline()[4:-2].decode('utf',errors='replace')
-                        title = f.readline()[6:-2].decode('utf',errors='replace')#.decode('gbk')
-                        body = f.readline()[5:-2].decode('utf',errors='replace')#.decode('gbk')
-                        frecord = f.readline()
-                    except Exception, e:
-                        print e, offset
-                    yield did,date,durl,title,body,fname,offset
 #                while True:
-#                    offset=f.tell()
-#                    faid = next_field(f)
-#                    if faid == None: 
-#                        break
-#                    did = int(faid[3:-2].decode('utf'))
-#                    date = datetime.strptime(next_field(f).decode('utf')[5:-2],'%Y%M%d')
-#                    durl = next_field(f)[4:-2].decode('utf')
-#                    title = next_field(f)[6:-2].decode('utf')#.decode('gbk')
-#                    body = next_field(f)[5:-2].decode('utf')#.decode('gbk')
-#                    frecord = f.readline()
+#                    try:
+#                        offset=f.tell()
+#                        faid = f.readline()
+#                        if not faid: 
+#                            break
+#                        did = int(faid[3:-2].decode('utf',errors='replace'))
+#                        date = datetime.strptime(f.readline().decode('utf',errors='replace')[5:-2],'%Y%M%d')
+#                        durl = f.readline()[4:-2].decode('utf',errors='replace')
+#                        title = f.readline()[6:-2].decode('utf',errors='replace')#.decode('gbk')
+#                        body = f.readline()[5:-2].decode('utf',errors='replace')#.decode('gbk')
+#                        frecord = f.readline()
+#                    except Exception, e:
+#                        print e, offset
 #                    yield did,date,durl,title,body,fname,offset
-                
+                while True:
+                    offset=f.tell()
+                    faid = next_field(f)
+                    if faid == None: 
+                        break
+                    try:
+                        did = int(faid[3:-2].decode('utf',errors='replace'))#.decode('GB18030',errors='replace'))
+                        date = datetime.strptime(next_field(f).decode('utf',errors='replace')[5:-2],'%Y%M%d')
+                        durl = next_field(f)[4:-2].decode('utf',errors='replace')
+                        title = next_field(f)[6:-2].decode('utf',errors='replace')#.decode('gbk')
+                        body = next_field(f)[5:-2].decode('utf',errors='replace')#.decode('gbk')
+                        frecord = f.readline()
+#                        yield did,date,durl,title,body,fname,offset
+                        yield did,date,body,fname,offset
+                    except Exception, e:
+                        logger.error(str(e)+': '+faid.decode('utf',errors='replace'))
+                        continue
                     
         
 
@@ -95,12 +99,12 @@ class EventMallCorpus():
     def MakeIndex(self):
         #create schema
         schema = Schema(
-                        did=NUMERIC, 
+                        did=STORED, 
                         date=DATETIME(stored=True),
-                        durl=ID,
-                        title=TEXT(phrase=False),
+                        #durl=STORED(stored=False),
+                        #title=STORED(stored=False),
 #                        body=TEXT(analyzer=ChineseTokenizer(),phrase=False,vector=Frequency),
-                        body=TEXT(phrase=False,vector=Frequency),
+                        body=TEXT(phrase=False),#,vector=Frequency),
                         dfile=STORED,
                         offset=STORED
                         )
@@ -113,24 +117,32 @@ class EventMallCorpus():
             return
         #fill index with entries    
         writer = ix.writer(procs=4, limitmb=1024, multisegment=True) 
+#        first=True
         cnt=0
         cnts=0
         for doc in self.__iter__():
             try:
                 if cnts%1000==0:
+#                    if first:
+#                        first=False
+#                    else:
+#                        writer.commit()
+#                        writer = ix.writer()
                     logger.info('indexing document %d'%cnts)
                 writer.add_document(did=doc[0],
                                     date=doc[1],
-                                    durl=doc[2],
-                                    title=doc[3],
-                                    body=doc[4],
-                                    dfile=doc[5],
-                                    offset=doc[6],
+                                    #durl=doc[2],
+                                    #title=doc[3],
+                                    body=doc[2],
+                                    dfile=doc[3],
+                                    offset=doc[4],
                                 )
                 cnts+=1
             except Exception, e:
-                print e,doc[3]
+                print e,doc
                 cnt+=1
+                writer.commit()
+                writer = ix.writer()
 
         writer.commit()
         print 'Failed documents:%d \t Succeeded:%d'%(cnt,cnts)

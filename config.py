@@ -5,5 +5,5 @@
 """
 import os
 
-datadir=os.path.abspath('../data/event_mall/')
+datadir=os.path.abspath('../data/event_mall/dat180')
 indexdir=os.path.abspath('../data/event_mall/index')
