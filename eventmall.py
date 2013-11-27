@@ -82,7 +82,7 @@ class EventMallCorpus():
                         break
                     try:
                         did = int(faid[3:-2].decode('utf',errors='replace'))#.decode('GB18030',errors='replace'))
-                        date = datetime.strptime(next_field(f).decode('utf',errors='replace')[5:-2],'%Y%M%d')
+                        date = datetime.strptime(next_field(f).decode('utf',errors='replace')[5:-2],'%Y%M%d').replace(hour=0, minute=0)
                         durl = next_field(f)[4:-2].decode('utf',errors='replace')
                         title = next_field(f)[6:-2].decode('utf',errors='replace')#.decode('gbk')
                         body = next_field(f)[5:-2].decode('utf',errors='replace')#.decode('gbk')
@@ -100,7 +100,7 @@ class EventMallCorpus():
         #create schema
         schema = Schema(
                         did=STORED, 
-                        date=DATETIME(stored=True),
+                        date=DATETIME(stored=True,sortable=True),
                         #durl=STORED(stored=False),
                         #title=STORED(stored=False),
 #                        body=TEXT(analyzer=ChineseTokenizer(),phrase=False,vector=Frequency),
@@ -116,7 +116,8 @@ class EventMallCorpus():
             logger.info('index already exists! DELETING')
             return
         #fill index with entries    
-        writer = ix.writer(procs=4, limitmb=856, multisegment=True) 
+#        writer = ix.writer(procs=6, limitmb=24172, multisegment=True) 
+        writer = ix.writer(procs=4, limitmb=1300, multisegment=True) 
 #        first=True
         cnt=0
         cnts=0
