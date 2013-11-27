@@ -82,7 +82,7 @@ class EventMallCorpus():
                         break
                     try:
                         did = int(faid[3:-2].decode('utf',errors='replace'))#.decode('GB18030',errors='replace'))
-                        date = datetime.strptime(next_field(f).decode('utf',errors='replace')[5:-2],'%Y%M%d').replace(hour=0, minute=0)
+                        date = datetime.strptime(next_field(f).decode('utf',errors='replace')[5:-2],'%Y%m%d').replace(hour=0, minute=0)
                         durl = next_field(f)[4:-2].decode('utf',errors='replace')
                         title = next_field(f)[6:-2].decode('utf',errors='replace')#.decode('gbk')
                         body = next_field(f)[5:-2].decode('utf',errors='replace')#.decode('gbk')
