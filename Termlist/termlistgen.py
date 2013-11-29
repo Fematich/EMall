@@ -17,7 +17,6 @@ def main():
             docfreq=reader.doc_frequency('body',term)
             #print docfreq
             if docfreq>min_df:   
-                for term in reader.field_terms('body'):
                     termlist.write(term.encode('utf-8')+'\n')
         
 if __name__ == "__main__":

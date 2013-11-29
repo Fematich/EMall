@@ -12,4 +12,7 @@ indexdir=os.path.join(envdir,'index')
 fdates=os.path.join(envdir,'dates')
 fgvols=os.path.join(envdir,'gross_daily_volumes')
 fvols=os.path.join(envdir,'daily_volumes')
-min_df=10
+
+fterm=os.path.join(envdir,'termlist')
+
+min_df=20
