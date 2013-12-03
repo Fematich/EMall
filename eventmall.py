@@ -19,7 +19,6 @@ from whoosh.index import create_in, open_dir
 from whoosh.qparser import QueryParser
 from whoosh.formats import Frequency
 
-from chinesetokenizer import ChineseTokenizer
 from config import datadir, indexdir
 
 
@@ -57,7 +56,7 @@ class EventMallCorpus():
     def __iter__(self):
 #        for fname in sorted(os.listdir(self.datadir)):
 #        for fname in ['dat'+str(tel) for tel in range(112)]:
-        for fname in ['dat'+str(tel) for tel in range(4)]:
+        for fname in ['dat'+str(tel) for tel in range(1)]:
             with open(os.path.join(self.datadir,fname),'rb') as f:
                 logger.info('opening: %s'%fname)
 #                while True:
@@ -104,7 +103,7 @@ class EventMallCorpus():
                         #durl=STORED(stored=False),
                         #title=STORED(stored=False),
 #                        body=TEXT(analyzer=ChineseTokenizer(),phrase=False,vector=Frequency),
-                        body=TEXT(phrase=False),#,vector=Frequency),
+                        body=TEXT(phrase=False,vector=Frequency),
                         dfile=STORED,
                         offset=STORED
                         )
@@ -117,7 +116,7 @@ class EventMallCorpus():
             return
         #fill index with entries    
 #        writer = ix.writer(procs=6, limitmb=24172, multisegment=True) 
-        writer = ix.writer(procs=4, limitmb=1300, multisegment=True) 
+        writer = ix.writer(limitmb=4000, multisegment=True) 
 #        first=True
         cnt=0
         cnts=0
@@ -145,7 +144,7 @@ class EventMallCorpus():
                 writer.commit()
                 writer = ix.writer()
 
-        writer.commit(merge=False)
+        writer.commit()
         print 'Failed documents:%d \t Succeeded:%d'%(cnt,cnts)
 
 
