@@ -1,0 +1,11 @@
+cd /work/data/event_mall/splits
+for dir in *
+do
+echo $dir
+cd /work/data/event_mall/splits/$dir
+sudo chmod 777 features
+read ndocs filename <<< $(wc -l docids)
+nclusters=$(python -c "import numpy as np; print 4*np.sqrt($ndocs)")
+sudo /work/eventmall/bin/vcluster matrix $nclusters -clustfile=clust -cltreefile=tree -showtree -zscores -colmodel=none -showfeatures > features
+done
+

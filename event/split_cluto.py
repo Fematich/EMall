@@ -9,7 +9,7 @@ import numpy as np
 from whoosh.index import create_in, open_dir
 from whoosh.query import Term
 from whoosh.sorting import FieldFacet
-from config import indexdir, vectordir, sourcedir, splitdir, fbursts
+from config import indexdir, vectordir, sourcedir, splitdir, eventmall_dir, fbursts
 from dateutil import rrule
 from datetime import datetime, timedelta
 
@@ -45,15 +45,15 @@ def load_bursts(currentmonth):
         for burst in bursts:
             cnt+=1
             if cnt%1000000==0:
-                print 'processed %dM bursts'%cnt
+                print 'processed %d M bursts'%(cnt/1000000)
             nv,start,end,term,startd,endd=burst.split()
-            start_date=datetime.strptime(startd,'%Y%m%d')
-            end_date=datetime.strptime(startd,'%Y%m%d')<currentmonth[1]
-            if (start_date<currentmonth[1] and end_date>=currentmonth[0]):
+            start_date=datetime.strptime(startd,'%Y%m%d').replace(hour=0, minute=0)
+            end_date=datetime.strptime(endd,'%Y%m%d').replace(hour=0, minute=0)
+            if (start_date<currentmonth[1]) and (end_date>=currentmonth[0]):
                 try:
                     termburst[term].append([cnt,(start_date,end_date),nv,start,end])
                 except KeyError:
-                    termburst[term]=[cnt,(start_date,end_date),nv,start,end]
+                    termburst[term]=[[cnt,(start_date,end_date),nv,start,end]]
     return termburst,cnt
 
 def getweight(tf,term,burst):
@@ -74,34 +74,56 @@ def generate_matrix(month):
         shutil.copy2(os.path.join(sourcedir,'vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d'))),vectordir)
     if not os.path.exists(splitdir):
         os.mkdir(splitdir)
-    sdir=os.path.join(splitdir,'vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d')))
+    sdir=os.path.join(splitdir,'split-%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d')))
     if not os.path.exists(sdir):
         os.mkdir(sdir)
     fmatrix=os.path.join(sdir,'matrix')
-    with open(fvectors,'r') as vectors, open(fmatrix,'w') as matrix:
+    fdocids=os.path.join(sdir,'docids')
+    fdocs=os.path.join(sdir,'docs')
+    with open(fvectors,'r') as vectors, open(fmatrix,'w') as matrix, open(fdocids,'w') as docids, open(fdocs,'w') as docs:
         nnz=0
         ndocs=0
         for doc in vectors:
-            ndocs+=1
+            nb=0
             vector=doc.split()
-            date=datetime.strptime(vector[1],'%Y%m%d').replace(hour=0, minute=0)
+            date=datetime.strptime(vector[1],'%Y-%m-%d').replace(hour=0, minute=0)
             v=[vector[i:i+2] for i in range(3, len(vector), 2)]
-            v_matrix=[]            
+            docscore=0            
+            v_matrix=[]
+            docstring=''
             for term, tf in v:
                 if term in bursts:
                    for burst in bursts[term]:
-                       if datetime.strptime(burst[1][0],'%Y%m%d').replace(hour=0, minute=0) <= date <= datetime.strptime(burst[1][1],'%Y%m%d').replace(hour=0, minute=0):
+                       if burst[1][0] <= date <= burst[1][1]:
                            # term in burst: replace term-string by burst-id and compute new weight
-                           nnz+=1
-                           v_matrix.extend(burst[0],str(getweight(tf,term,burst)))    
-            matrix.write(' '.join(v_matrix)+'\n')
-    # add first line to matrix-file
+                           nb+=1
+                           score=getweight(tf,term,burst)
+                           docstring+='%s-%s-%s/%s/%d '%(burst[1][0].strftime('%Y%m%d'),burst[1][1].strftime('%Y%m%d'),term,tf,score)
+                           docscore+=score
+                           v_matrix.extend([str(burst[0]),score])    
+            if len(v_matrix)>2*minlen:
+                ndocs+=1
+                nnz+=nb
+                docids.write(str(vector[0])+'\n')
+                docs.write(str(vector[0])+' '+docstring+'\n')
+                
+                for i in range(1,len(v_matrix)+1,2):
+                    v_matrix[i]=str(float(v_matrix[i])/docscore*100)
+                matrix.write(' '.join(v_matrix)+'\n')
+        # add first line to matrix-file
+        docs.write(' '.join([str(ndocs),str(nbursts),str(nnz)])+'\n')
     bashcommand='echo "%s\n$(cat %s)" > %s'%(' '.join([str(ndocs),str(nbursts),str(nnz)]),fmatrix,fmatrix)
     subprocess.call(bashcommand,shell=True)
     #TODO: complete the vcluster statement and copy vcluster from ...  
-    #prog = "%s/bin/vcluster %s %d -clustfile=%s -cltreefile=%s -showtree -zscores -colmodel=none -showfeatures"%(options.runtime_dir, split_dir+"/matrix", nclusters, split_dir+"/clust", split_dir+"/tree")
+    nclusters=clusters * int(np.sqrt(ndocs))
+    prog = "%s/bin/vcluster %s %d -clustfile=%s -cltreefile=%s -showtree -zscores -colmodel=none -showfeatures"%(eventmall_dir, sdir+"/matrix", nclusters, sdir+"/clust", sdir+"/tree")
+    with open(os.path.join(sdir,"features"), 'w') as fout:
+        subprocess.call(prog,shell=True,stdout=fout)
+
 if __name__ == '__main__':    
     monthlist=get_months(int(sys.argv[1]),int(sys.argv[2]))
+    clusters=int(sys.argv[3])
+    minlen=int(sys.argv[4])
     ix = open_dir(indexdir)
     reader=ix.reader()    
     total_ndocs=reader.doc_count()
