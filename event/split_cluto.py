@@ -69,7 +69,7 @@ def generate_matrix(month):
     Example:
         see cluto pdf
     '''
-    fvectors=os.path.join(vectordir,'vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d')))   
+    fvectors=os.path.join(vectordir,'vectors','vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d')))   
     if not os.path.isfile(fvectors):
         shutil.copy2(os.path.join(sourcedir,'vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d'))),vectordir)
     if not os.path.exists(splitdir):
