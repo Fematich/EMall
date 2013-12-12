@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("preprocess")
+sys.path.append("../config.py")
 
 def get_months(batchnumber, n_batches):
     '''
