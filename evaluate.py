@@ -4,14 +4,12 @@
 @date:      Wed Dec 11 12:42:05 2013
 """
 from mongostore.mongostore import MongoStore
-import logging, subprocess
+import logging, subprocess, sys
 from config import fgold, fevent_index, faevents
 from utils import *
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("TODO")
-
-name='orig'
 
 def wccount(filename):
     out = subprocess.Popen(['wc', '-l', filename],
@@ -45,7 +43,7 @@ def load_event_sets(evfile=faevents):
     return event_sets
 
 @MongoStore
-def compare_event(name,g_count,r_count,big):
+def compare_event(name,info,g_count,r_count,big):
     if big:
         gold_events=sig_set
     else:
@@ -58,7 +56,7 @@ def compare_event(name,g_count,r_count,big):
     return ret
     
 @MongoStore
-def compare_events(name,big):
+def compare_events(name,info,big):
     if big:
         gold_events=sig_set
     else:
@@ -76,7 +74,7 @@ def compare_events(name,big):
                 match_event=r_count
                 max_match=match(r_event,g_event)
         logger.info('comparing event %d with event %d'%(g_count,match_event))
-        event_res=compare_event(name=name,g_count=g_count,r_count=match_event,big=big)
+        event_res=compare_event(name,info=info,g_count=g_count,r_count=match_event,big=big)
         for key in ret:
             ret[key]+=event_res[key]
     for key in ret:
@@ -85,6 +83,8 @@ def compare_events(name,big):
 
 
 if __name__ == '__main__':
+    name=sys.argv[1]
+    info = dict(x.split('=', 1) for x in sys.argv[2:])
     #load golden events
     gold_events=load_gold_events()
     #load retrieved events
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     #match both
     sig_set=[st for st in gold_events if len(st)>=300]
     mod_set=[st for st in gold_events if 10<len(st)<=100]
-    print compare_events(name=name, big=False)
-    print compare_events(name=name, big=True)
+    print compare_events(name=name,info=info, big=False)
+    print compare_events(name=name, info=info, big=True)
     
     logger.info('done!!!')

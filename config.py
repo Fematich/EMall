@@ -5,7 +5,7 @@
 """
 import os
 
-envdir=os.path.abspath('../data/event_mall/')
+envdir=os.path.abspath('/home/mfeys/work/data/event_mall/')
 datadir=os.path.join(envdir,'dat180')
 indexdir=os.path.join(envdir,'index')
 burstindexdir=os.path.join(envdir,'burstindex')
