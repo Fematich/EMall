@@ -27,16 +27,17 @@ log_finish $INST
 
 INST="evaluate events vs the gold events"
 log_start $INST
-event_name="$1"+"d"+"$2"+"m"+"$3"+"s"+"$4"
-CMD="sudo python /home/mfeys/work/EMall/evaluate.py $event_name splitname=$1 min_sim=$2 min_score=$3 min_size=$4"
+event_name="$1"d"$2"m"$3"s"$4"
+CMD="python /home/mfeys/work/EMall/evaluate.py $event_name splitname=$1 min_sim=$2 min_score=$3 min_size=$4"
 echo $CMD; $CMD
 log_finish $INST
 
 INST="move the generated event-files to the event-directory and rename it"
 log_start $INST
-EVENT_DIR="/home/mfeys/work/data/events/"+$event_name
+EVENT_DIR="/home/mfeys/work/data/events/"$event_name
 mkdir $EVENT_DIR
 mv /home/mfeys/work/data/event_mall/earticles $EVENT_DIR/earticles
 mv /home/mfeys/work/data/event_mall/events $EVENT_DIR/events
 mv /home/mfeys/work/data/event_mall/events_index $EVENT_DIR/events_index
+mv /home/mfeys/work/data/event_mall/aevents $EVENT_DIR/aevents
 log_finish $INST

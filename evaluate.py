@@ -74,7 +74,7 @@ def compare_events(name,info,big):
                 match_event=r_count
                 max_match=match(r_event,g_event)
         logger.info('comparing event %d with event %d'%(g_count,match_event))
-        event_res=compare_event(name,info=info,g_count=g_count,r_count=match_event,big=big)
+        event_res=compare_event(name=name,info=info,g_count=g_count,r_count=match_event,big=big)
         for key in ret:
             ret[key]+=event_res[key]
     for key in ret:
