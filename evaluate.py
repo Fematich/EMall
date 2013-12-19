@@ -48,11 +48,27 @@ def compare_event(name,info,g_count,r_count,big):
         gold_events=sig_set
     else:
         gold_events=mod_set
+    #filter the articles that aren't in the daterange of the event out...
+#    dates_gold=set([dates[doc] for doc in gold_events[g_count]])
+    gold=set([])
+    dates_gold=set([])
+    non_corpus_docs=0
+    for doc in gold_events[g_count]:
+        try:
+            dates_gold.add(dates[doc])
+            gold.add(doc)
+        except KeyError:
+            non_corpus_docs+=1
+    retrieved=set([doc for doc in retrieved_events[r_count] if min(dates_gold)<=dates[doc]<=max(dates_gold)])
     ret={}
-    ret['cos_sim']=cosine_similarity(gold_events[g_count],retrieved_events[r_count])
-    ret['precision']=precision(gold_events[g_count],retrieved_events[r_count])
-    ret['recall']=recall(gold_events[g_count],retrieved_events[r_count])
+    ret['n_g_docs']=len(gold)
+    ret['n_r_docs']=len(retrieved)
+    ret['n_matching_docs']=len(gold)-len(gold-retrieved)    
+    ret['cos_sim']=cosine_similarity(gold,retrieved)
+    ret['precision']=precision(gold,retrieved)
+    ret['recall']=recall(gold,retrieved)
     ret['F1']=F1(ret['precision'],ret['recall'])
+    ret['non_corpus_docs']=non_corpus_docs
     return ret
     
 @MongoStore
@@ -63,32 +79,49 @@ def compare_events(name,info,big):
         gold_events=mod_set
     ret={'cos_sim':0,'precision':0,'recall':0,'F1':0,}
     g_count=-1
-    match_event=-1
+    non_match=[]
     for g_event in gold_events:
         g_count+=1
         r_count=-1
         max_match=0
+        match_event=-1
         for r_event in retrieved_events:
             r_count+=1
             if match(r_event,g_event)>max_match:
                 match_event=r_count
                 max_match=match(r_event,g_event)
         logger.info('comparing event %d with event %d'%(g_count,match_event))
-        event_res=compare_event(name=name,info=info,g_count=g_count,r_count=match_event,big=big)
-        for key in ret:
-            ret[key]+=event_res[key]
+        if max_match!=0:
+            event_res=compare_event(name=name,info=info,g_count=g_count,r_count=match_event,big=big)
+            for key in ret:
+                ret[key]+=event_res[key]
+        else:
+            non_match.append(g_count)
     for key in ret:
         ret[key]=float(ret[key])/g_count
+    ret['non_match']=non_match
     return ret
 
 
 if __name__ == '__main__':
     name=sys.argv[1]
     info = dict(x.split('=', 1) for x in sys.argv[2:])
+    if 'events_index' in info:
+        fevent_index=info['events_index']
     #load golden events
-    gold_events=load_gold_events()
+    try:
+        goldpath=info['goldpath']
+        gold_events=load_gold_events(goldpath)
+    except KeyError:
+        gold_events=load_gold_events()
     #load retrieved events
-    retrieved_events=load_event_sets()
+    try:
+        evfile=info['evfile']
+        retrieved_events=load_event_sets(evfile)
+    except KeyError:
+        retrieved_events=load_event_sets()
+    #generate dates dictionary:
+    dates=load_dates()
     #match both
     sig_set=[st for st in gold_events if len(st)>=300]
     mod_set=[st for st in gold_events if 10<len(st)<=100]

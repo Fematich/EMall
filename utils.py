@@ -3,8 +3,9 @@
 @author:    Matthias Feys (matthiasfeys@gmail.com), IBCN (Ghent University)
 @date:      %(date)s
 """
-import logging
+import logging, subprocess
 import numpy as np
+from config import fainfo
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("utils")
@@ -45,3 +46,11 @@ def F1(precision,recall):
         return float(2*precision*recall)/(precision+recall)
     else:
         return 0
+def load_dates():
+    dates = {}
+    for line in open(fainfo):
+        tokens = line.split()
+        aid = int(tokens[0])
+        date = int(tokens[1])
+        dates[aid] = date
+    return dates
