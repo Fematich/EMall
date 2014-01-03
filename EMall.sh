@@ -40,7 +40,7 @@ mine_bursts() {
     echo $filepath
     if [ ! -f $destdir/$fname ]
     then
-        sudo cp "$filepath" "$destdir/$fname"
+        sudo cp $filepath $destdir/$fname
     fi
     # execute the tvburst-code
     cd /work/eventmall
@@ -51,7 +51,7 @@ mine_bursts() {
     echo 'copy the data to /users/mfeys'
     filepath=$(printf "$sourcedir/bursts/$burstname/bursts.%0*d\n" $padtowidth $hostid)
     mkdir -p "$sourcedir/bursts/$burstname"
-    sudo cp "$destdir/$burstname" "$filepath"
+    sudo cp $destdir/$burstname $filepath
     echo 'DONE MINING BURSTS!!!'
     log_finish $INST
 }
@@ -75,7 +75,7 @@ cluto() {
     log_finish $INST
     # copy the new data back
     mkdir -p $sourcedir/splits/$splitname
-    sudo cp -r "$destdir/splits/*" "$sourcedir/splits/$splitname/"
+    sudo cp -r $destdir/splits/* $sourcedir/splits/$splitname/
 }
 
 merge_events() {
@@ -87,7 +87,8 @@ merge_events() {
 }
 
 ### commands to execute ###
-# use the first source of the config file as the first parameter
-source $1
-cluto
+# define the function call as the first parameter
+# use the first source of the config file as the second parameter
+source $2
+echo "Executing: $1"; $1
  

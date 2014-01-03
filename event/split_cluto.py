@@ -99,6 +99,10 @@ def generate_matrix(month):
                            # term in burst: replace term-string by burst-id and compute new weight
                            nb+=1
                            score=getweight(tf,term,burst)
+                           if boost==1:
+                               score*=burst[2]
+                           elif boost==2:
+                               score*=np.log(burst[2])
                            docstring+='%s-%s-%s/%s/%d '%(burst[1][0].strftime('%Y%m%d'),burst[1][1].strftime('%Y%m%d'),term,tf,score)
                            docscore+=score
                            v_matrix.extend([str(burst[0]),score])    
@@ -125,6 +129,7 @@ if __name__ == '__main__':
     monthlist=get_months(int(sys.argv[1]),int(sys.argv[2]))
     clusters=int(sys.argv[3])
     minlen=int(sys.argv[4])
+    boost=int(sys.argv[5])
     ix = open_dir(indexdir)
     reader=ix.reader()    
     total_ndocs=reader.doc_count()
