@@ -45,7 +45,7 @@ mine_bursts() {
     # execute the tvburst-code
     cd /work/eventmall
     ENV=$destdir
-    CMD="sudo ./build/tvburst $ENV $ENV/$burstname $TVB_RATIO $TVB_GAMMA $TVB_WINDOW"
+    CMD="sudo ./build/$BURSTALGO $ENV $ENV/$burstname $TVB_RATIO $TVB_GAMMA $TVB_WINDOW"
     echo $CMD; $CMD
     # copy the new data back
     echo 'copy the data to /users/mfeys'
@@ -60,8 +60,8 @@ cluto() {
     log_start $INST
     sudo rm -f $ENV/bursts
     sudo rm -rf $ENV/splits/*
-    cat $sourcedir/bursts/$burstname/* > $ENV/bursts
-    CMD="sudo python /work/EMall/event/split_cluto.py $hostid $clustersize $TOPICS $MIN_LEN"
+    cat $sourcedir/bursts/$burstname/* >> $ENV/bursts
+    CMD="sudo python /work/EMall/event/split_cluto.py $hostid $clustersize $TOPICS $MIN_LEN $BOOSTING"
     echo $CMD; $CMD
     log_finish $INST
 

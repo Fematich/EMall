@@ -70,9 +70,9 @@ def generate_matrix(month):
     Example:
         see cluto pdf
     '''
-    fvectors=os.path.join(vectordir,'vectors','vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d')))   
+    fvectors=os.path.join(vectordir,'vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d')))   
     if not os.path.isfile(fvectors):
-        shutil.copy2(os.path.join(sourcedir,'vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d'))),vectordir)
+        shutil.copy2(os.path.join(sourcedir,'vectors','vectors%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d'))),vectordir)
     if not os.path.exists(splitdir):
         os.mkdir(splitdir)
     sdir=os.path.join(splitdir,'split-%s-%s'%(month[0].strftime('%Y%m%d'),month[1].strftime('%Y%m%d')))
@@ -100,9 +100,9 @@ def generate_matrix(month):
                            nb+=1
                            score=getweight(tf,term,burst)
                            if boost==1:
-                               score*=burst[2]
+                               score*=float(burst[2])
                            elif boost==2:
-                               score*=np.log(burst[2])
+                               score*=float(np.log(burst[2]))
                            docstring+='%s-%s-%s/%s/%d '%(burst[1][0].strftime('%Y%m%d'),burst[1][1].strftime('%Y%m%d'),term,tf,score)
                            docscore+=score
                            v_matrix.extend([str(burst[0]),score])    
