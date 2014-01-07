@@ -36,10 +36,11 @@ def load_event_sets(evfile=faevents):
     event_sets=[set([]) for tel in range(n_events)]
     with open(evfile,'r') as eventfile:
         for line in eventfile:
-            blocks=line.strip('\n').split()
+            blocks=line.strip(',\n').split()
             f_id=int(blocks[0].split('=')[1])
             e_id=int(blocks[1].split('=')[1].split('/')[0])
-            event_sets[e_id-1].add(f_id)
+            sim=int(blocks[1].split('=')[1].split('/')[1])
+            event_sets[e_id-1].add((f_id,sim))
     return event_sets
 
 @MongoStore
@@ -59,8 +60,9 @@ def compare_event(name,info,g_count,r_count,big):
             gold.add(doc)
         except KeyError:
             non_corpus_docs+=1
-    retrieved=set([doc for doc in retrieved_events[r_count] if min(dates_gold)<=dates[doc]<=max(dates_gold)])
+    retrieved=set([doc for doc in retrieved_events[r_count] if min(dates_gold)<=dates[doc[0]]<=max(dates_gold)])
     ret={}
+    ret['AP']=average_precision(gold,retrieved)
     ret['n_g_docs']=len(gold)
     ret['n_r_docs']=len(retrieved)
     ret['n_matching_docs']=len(gold)-len(gold-retrieved)    

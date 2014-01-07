@@ -3,12 +3,28 @@
 @author:    Matthias Feys (matthiasfeys@gmail.com), IBCN (Ghent University)
 @date:      %(date)s
 """
-import logging, subprocess
+import logging, subprocess, operator
 import numpy as np
 from config import fainfo
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("utils")
+
+def average_precision(set1,set2,ignore=set([])):
+    """
+    given two sets of doc identifiers, it returns the average precision of the second, given the first as ground-truth
+    """
+    #order the set of retrieved docs
+    slist=sorted(set2,key=operator.itemgetter(1),reverse=True)
+    docs,_=zip(*slist)
+    docset=set()
+    average_precision=0
+    for doc in docs:
+        docset.add(doc)
+        if doc in set1:
+            average_precision+=precision(set1,docset)
+    average_precision/=len(set1)
+    return docs,average_precision
 
 def cosine_similarity(set1,set2,ignore=set([])):
     """
