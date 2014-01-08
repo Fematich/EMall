@@ -34,14 +34,16 @@ def load_gold_events(goldpath=fgold):
 def load_event_sets(evfile=faevents):
     n_events=wccount(fevent_index)
     event_sets=[set([]) for tel in range(n_events)]
+    orderset=[set([]) for tel in range(n_events)]
     with open(evfile,'r') as eventfile:
         for line in eventfile:
             blocks=line.strip(',\n').split()
             f_id=int(blocks[0].split('=')[1])
             e_id=int(blocks[1].split('=')[1].split('/')[0])
             sim=int(blocks[1].split('=')[1].split('/')[1])
-            event_sets[e_id-1].add((f_id,sim))
-    return event_sets
+            event_sets[e_id-1].add(f_id)
+            orderset[e_id-1].add((f_id,sim))
+    return event_sets,orderset
 
 @MongoStore
 def compare_event(name,info,g_count,r_count,big):
@@ -60,9 +62,10 @@ def compare_event(name,info,g_count,r_count,big):
             gold.add(doc)
         except KeyError:
             non_corpus_docs+=1
-    retrieved=set([doc for doc in retrieved_events[r_count] if min(dates_gold)<=dates[doc[0]]<=max(dates_gold)])
+    retrieved=set([doc for doc in retrieved_events[r_count] if min(dates_gold)<=dates[doc]<=max(dates_gold)])
+    order_retrieved=set([doc for doc in order_retrieved_events[r_count] if min(dates_gold)<=dates[doc[0]]<=max(dates_gold)])
     ret={}
-    ret['AP']=average_precision(gold,retrieved)
+    ret['AP']=average_precision(gold,order_retrieved) # change retrieved from a set of tuples to a set of integers!!!
     ret['n_g_docs']=len(gold)
     ret['n_r_docs']=len(retrieved)
     ret['n_matching_docs']=len(gold)-len(gold-retrieved)    
@@ -79,7 +82,7 @@ def compare_events(name,info,big):
         gold_events=sig_set
     else:
         gold_events=mod_set
-    ret={'cos_sim':0,'precision':0,'recall':0,'F1':0,}
+    ret={'cos_sim':0,'precision':0,'recall':0,'F1':0,'AP':0}
     g_count=-1
     non_match=[]
     for g_event in gold_events:
@@ -101,6 +104,7 @@ def compare_events(name,info,big):
             non_match.append(g_count)
     for key in ret:
         ret[key]=float(ret[key])/g_count
+    ret['MAP']=ret.pop('AP')
     ret['non_match']=non_match
     return ret
 
@@ -119,9 +123,9 @@ if __name__ == '__main__':
     #load retrieved events
     try:
         evfile=info['evfile']
-        retrieved_events=load_event_sets(evfile)
+        retrieved_events,order_retrieved_events=load_event_sets(evfile)
     except KeyError:
-        retrieved_events=load_event_sets()
+        retrieved_events,order_retrieved_events=load_event_sets()
     #generate dates dictionary:
     dates=load_dates()
     #match both

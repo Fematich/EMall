@@ -24,7 +24,7 @@ def average_precision(set1,set2,ignore=set([])):
         if doc in set1:
             average_precision+=precision(set1,docset)
     average_precision/=len(set1)
-    return docs,average_precision
+    return average_precision
 
 def cosine_similarity(set1,set2,ignore=set([])):
     """
@@ -43,7 +43,6 @@ def precision(set1,set2,ignore=set([])):
     """
     given two sets of doc identifiers, it returns the precision of the second set, with the first set as the ground truth
     """
-    logger.info('source has %d docs, best match has %d docs, %d docs match'%(len(set1),len(set2),(len(set1)-len(set1-set2))))
     set2=set2-ignore    
     return float(len(set1)-len(set1-set2))/len(set2)
 
@@ -51,6 +50,7 @@ def recall(set1,set2,ignore=set([])):
     """
     given two sets of doc identifiers, it returns the recall of the second set, with the first set as the ground truth
     """
+    logger.info('source has %d docs, best match has %d docs, %d docs match'%(len(set1),len(set2),(len(set1)-len(set1-set2))))
     set2=set2-ignore      
     return float(len(set1)-len(set1-set2))/len(set1)
 

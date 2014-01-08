@@ -1,7 +1,8 @@
 #!/bin/bash
 #parameters: splitname min-sim min-score
-splitsource=/home/mfeys/work/data/splits/$1
-
+splitsource=$1
+eventrootdir="/media/DB58-DB0C/event_mall/events"
+splitname=$(echo $splitsource | cut -d "/" -f 6)
 splitdir=/home/mfeys/work/data/event_mall/splits
 ENV="/home/mfeys/work/data/event_mall"
 DATE_CMD="date +%Y%m%d%H:%M:%S"
@@ -27,14 +28,14 @@ log_finish $INST
 
 INST="evaluate events vs the gold events"
 log_start $INST
-event_name="$1"d"$2"m"$3"s"$4"
-CMD="python /home/mfeys/work/EMall/evaluate.py $event_name splitname=$1 min_sim=$2 min_score=$3 min_size=$4"
+event_name="$splitname"d"$2"m"$3"s"$4"
+CMD="python /home/mfeys/work/EMall/evaluate.py $event_name splitname=$splitname min_sim=$2 min_score=$3 min_size=$4 dataset=event_mall"
 echo $CMD; $CMD
 log_finish $INST
 
 INST="move the generated event-files to the event-directory and rename it"
 log_start $INST
-EVENT_DIR="/home/mfeys/work/data/events/"$event_name
+EVENT_DIR=$eventrootdir/$event_name
 mkdir $EVENT_DIR
 mv /home/mfeys/work/data/event_mall/earticles $EVENT_DIR/earticles
 mv /home/mfeys/work/data/event_mall/events $EVENT_DIR/events

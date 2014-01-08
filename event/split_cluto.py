@@ -60,7 +60,10 @@ def load_bursts(currentmonth):
 def getweight(tf,term,burst):
     tf=float(int(tf))
     df=reader.doc_frequency('body',term)
-    weight=tf * np.log(total_ndocs/df) + 1;
+    if tf_form==2:
+        weight=tf * np.log(total_ndocs/df);
+    else:
+        weight=tf * np.log(total_ndocs/df) + 1;
     return weight
     
 def generate_matrix(month):
@@ -102,7 +105,7 @@ def generate_matrix(month):
                            if boost==1:
                                score*=float(burst[2])
                            elif boost==2:
-                               score*=float(np.log(burst[2]))
+                               score*=np.log(float(burst[2]))
                            docstring+='%s-%s-%s/%s/%d '%(burst[1][0].strftime('%Y%m%d'),burst[1][1].strftime('%Y%m%d'),term,tf,score)
                            docscore+=score
                            v_matrix.extend([str(burst[0]),score])    
@@ -129,7 +132,10 @@ if __name__ == '__main__':
     monthlist=get_months(int(sys.argv[1]),int(sys.argv[2]))
     clusters=int(sys.argv[3])
     minlen=int(sys.argv[4])
-    boost=int(sys.argv[5])
+    if len(sys.argv)>5:
+        boost=int(sys.argv[5])
+    if len(sys.argv)>6:
+        tf_form=int(sys.argv[5])
     ix = open_dir(indexdir)
     reader=ix.reader()    
     total_ndocs=reader.doc_count()
