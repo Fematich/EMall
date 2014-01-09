@@ -132,10 +132,12 @@ if __name__ == '__main__':
     monthlist=get_months(int(sys.argv[1]),int(sys.argv[2]))
     clusters=int(sys.argv[3])
     minlen=int(sys.argv[4])
-    if len(sys.argv)>4:
-        boost=int(sys.argv[5])
+    boost=0
+    tf_form=0
     if len(sys.argv)>5:
-        tf_form=int(sys.argv[5])
+        boost=int(sys.argv[5])
+    if len(sys.argv)>6:
+        tf_form=int(sys.argv[6])
     ix = open_dir(indexdir)
     reader=ix.reader()    
     total_ndocs=reader.doc_count()
