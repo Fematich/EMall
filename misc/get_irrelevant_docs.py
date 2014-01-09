@@ -46,7 +46,7 @@ def load_date_ranges():
             for doc in gold_events[event_id]:
                 try:
                     dateset.add(dates[doc])
-                    ev_file.write('%d\n'%event_id)
+                    ev_file.write('%d\n'%doc)
                 except KeyError:
                     continue
         gold_dates[event_id]=(min(dateset),max(dateset))

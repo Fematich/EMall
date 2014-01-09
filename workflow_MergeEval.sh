@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for splitdir in /media/EXTERNE\ HD/event_mall/splits/log_boost_split1540 /media/EXTERNE\ HD/event_mall/splits/log_boost_split2030
+for splitdir in /home/mfeys/work/data/splits2/tf1_log_boost_splits1530 /home/mfeys/work/data/splits2/tf1_splits2020
  do
 	for min_sim in $(seq 0.1 0.1 0.5)
 	do

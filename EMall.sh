@@ -61,7 +61,7 @@ cluto() {
     sudo rm -f $ENV/bursts
     sudo rm -rf $ENV/splits/*
     cat $sourcedir/bursts/$burstname/* >> $ENV/bursts
-    CMD="sudo python /work/EMall/event/split_cluto.py $hostid $clustersize $TOPICS $MIN_LEN $BOOSTING"
+    CMD="sudo python /work/EMall/event/split_cluto.py $hostid $clustersize $TOPICS $MIN_LEN $BOOSTING $TF_FORM"
     echo $CMD; $CMD
     log_finish $INST
 

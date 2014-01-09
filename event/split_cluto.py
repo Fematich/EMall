@@ -60,7 +60,7 @@ def load_bursts(currentmonth):
 def getweight(tf,term,burst):
     tf=float(int(tf))
     df=reader.doc_frequency('body',term)
-    if tf_form==2:
+    if tf_form==1:
         weight=tf * np.log(total_ndocs/df);
     else:
         weight=tf * np.log(total_ndocs/df) + 1;
@@ -132,9 +132,9 @@ if __name__ == '__main__':
     monthlist=get_months(int(sys.argv[1]),int(sys.argv[2]))
     clusters=int(sys.argv[3])
     minlen=int(sys.argv[4])
-    if len(sys.argv)>5:
+    if len(sys.argv)>4:
         boost=int(sys.argv[5])
-    if len(sys.argv)>6:
+    if len(sys.argv)>5:
         tf_form=int(sys.argv[5])
     ix = open_dir(indexdir)
     reader=ix.reader()    

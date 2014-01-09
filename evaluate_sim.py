@@ -30,11 +30,11 @@ def index_docs():
         ix = create_in(docvectorindexdir, schema)
 
     writer = ix.writer(procs=4, limitmb=500, multisegment=True) 
-    for split_subdir in os.listdir(split_source,splitname):
+    for split_subdir in os.listdir(os.path.join(split_source,splitname)):
         logger.info('indexing: '+split_subdir)
         with open(os.path.join(split_source,splitname,split_subdir,'docs'),'r') as vectors:
             for vector in vectors:
-                writer.add_document(did=vector.split(' ')[0],
+                writer.add_document(did=int(vector.split(' ')[0]),
                                     dfile=split_subdir,
                                     offset=vectors.tell()
                                     )
@@ -45,40 +45,49 @@ def load_docs(event_id):
     irrelevant_docs=[]
     with open(os.path.join(rel_event_dir,str(event_id)),'r') as docids:
         for docid in docids:
-            doc=searcher.document(did=event_id)
-            with open(os.path.join(split_source,splitname,doc['dfile']),'r') as f:
-                f.seek(doc['offset'])
-                line=f.readline()
-            tokens = line.split()
-#            aid = int(tokens[0])
-            relevant_docs.append = {}
-            for token in tokens[1:]:
-                if (token.find('-') == -1): continue
-                fields = []
-                fields = token.split("/")
-                term = fields[0]
-#                tf = fields[1]
-                score = fields[2]
-                relevant_docs[-1].setdefault(term, 0)
-                relevant_docs[-1][term] = float(score)
+            docid=int(docid.strip('\n'))
+            doc=searcher.document(did=docid)
+            if doc!=None:
+                with open(os.path.join(split_source,splitname,doc['dfile'],'docs'),'r') as f:
+                    f.seek(doc['offset'])
+                    line=f.readline()
+                tokens = line.split()
+    #            aid = int(tokens[0])
+                relevant_docs.append({})
+                for token in tokens[1:]:
+                    if (token.find('-') == -1): continue
+                    fields = []
+                    fields = token.split("/")
+                    term = fields[0]
+    #                tf = fields[1]
+                    score = fields[2]
+                    relevant_docs[-1].setdefault(term, 0)
+                    relevant_docs[-1][term] = float(score)
+#    tel=0
     with open(os.path.join(irrel_event_dir,str(event_id)),'r') as docids:
         for docid in docids:
-            doc=searcher.document(did=event_id)
-            with open(os.path.join(split_source,splitname,doc['dfile'],'docs'),'r') as f:
-                f.seek(doc['offset'])
-                line=f.readline()
-            tokens = line.split()
-#            aid = int(tokens[0])
-            irrelevant_docs.append = {}
-            for token in tokens[1:]:
-                if (token.find('-') == -1): continue
-                fields = []
-                fields = token.split("/")
-                term = fields[0]
-#                tf = fields[1]
-                score = fields[2]
-                irrelevant_docs[-1].setdefault(term, 0)
-                irrelevant_docs[-1][term] = float(score)
+#            tel+=1
+#            if tel%100==0:
+#                logger.info("doc"+str(tel))
+            docid=int(docid.strip('\n'))
+            doc=searcher.document(did=docid)
+            if doc!=None:
+                with open(os.path.join(split_source,splitname,doc['dfile'],'docs'),'r') as f:
+                    f.seek(doc['offset'])
+                    line=f.readline()
+                tokens = line.split()
+    #            aid = int(tokens[0])
+                irrelevant_docs.append({})
+                for token in tokens[1:]:
+                    if (token.find('-') == -1): continue
+                    fields = []
+                    fields = token.split("/")
+                    term = fields[0]
+    #                tf = fields[1]
+                    score = fields[2]
+                    irrelevant_docs[-1].setdefault(term, 0)
+                    irrelevant_docs[-1][term] = float(score)
+    logger.info("LOADED %d relevant and %d irrelevant docs"%(len(relevant_docs),len(irrelevant_docs)))
     return relevant_docs,irrelevant_docs
 
 def cosine_similarity(tfa, tfb):
@@ -105,12 +114,12 @@ def eventdocsimilarities(splitname,event_id):
     for docid1,rel_doc in enumerate(relevant_docs):
         for docid2,rel_doc2 in enumerate(relevant_docs):
             if docid2<docid1:
-                intersim=cosine_similarity(rel_doc,rel_doc2)
+                intersim+=cosine_similarity(rel_doc,rel_doc2)
                 intercount+=1
             else:
                 break
         for irrel_doc in irrelevant_docs:
-            intrasim=cosine_similarity(rel_doc,irrel_doc)
+            intrasim+=cosine_similarity(rel_doc,irrel_doc)
             intracount+=1
     return {'intersim':intersim/intercount,'intrasim':intrasim/intracount}
 
@@ -124,6 +133,7 @@ def docsimilarities(splitname,big):
     with open(event_file,'r') as moderate_eventlist:
         count=0
         for eventid in moderate_eventlist:
+            eventid=int(eventid.strip('\n'))
             event_res=eventdocsimilarities(splitname=splitname,event_id=eventid)
             for key in event_res:
                 ret[key]+=event_res[key]
@@ -134,8 +144,8 @@ def docsimilarities(splitname,big):
 
 if __name__ == "__main__":
     #get correct docs
-    index_docs()
-    splitname=sys.argv[0]
+    splitname=sys.argv[1]
+#    index_docs()
     ix=open_dir(docvectorindexdir)
     searcher=ix.searcher()
 

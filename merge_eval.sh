@@ -2,7 +2,7 @@
 #parameters: splitname min-sim min-score
 splitsource=$1
 eventrootdir="/media/DB58-DB0C/event_mall/events"
-splitname=$(echo $splitsource | cut -d "/" -f 6)
+splitname=$(echo $splitsource | cut -d "/" -f 7)
 splitdir=/home/mfeys/work/data/event_mall/splits
 ENV="/home/mfeys/work/data/event_mall"
 DATE_CMD="date +%Y%m%d%H:%M:%S"
