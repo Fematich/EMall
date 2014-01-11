@@ -6,17 +6,18 @@
 """
 import logging,sys,subprocess
 from pymongo import MongoClient
+from scipy.stats import ttest_rel,ttest_ind
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-logger=logging.getLogger("TODO")
+logger=logging.getLogger("MWWtest")
 
 
 client = MongoClient()
 db = client['evaluation']
 datastore = db['compare_event']
 
-def Wilcoxon(name1,name2):
-    for big in [True,False]:
+def ttest(name1,name2):
+    for big in [True]:
         F1,F2=[],[]
         recalls1,recalls2=[],[]
         precisions1,precisions2=[],[]
@@ -39,14 +40,17 @@ def Wilcoxon(name1,name2):
 #            for items in zip(precisions1,precisions2):
 #                precisionf.write("%f %f\n"%(items[0],items[1]))
 #        subprocess.call('./wilcoxon tmp/precision 90.0',shell=True)
-        with open('tmp/F','w') as Ff:
-            for items in zip(F1,F2):
-                Ff.write("%f %f\n"%(items[0],items[1]))
-        subprocess.call('./wilcoxon tmp/F 90.0',shell=True)
+        print len(precisions1),len(precisions2)
+        print 'precisions '+str(big)
+        print ttest_rel(precisions1,precisions2)#,equal_var=False)
+        print 'recalls '+str(big)
+        print ttest_rel(recalls1,recalls2)#,equal_var=False)
+        print 'F1 '+str(big)
+        print ttest_rel(F1,F2)#,equal_var=False)
 #        with open('tmp/MAP','w') as MAPf:
 #            for items in zip(MAP1,MAP2):
 #                MAPf.write("%f %f\n"%(items[0],items[1]))
 #        subprocess.call('./wilcoxon tmp/MAP',shell=True)
 
 if __name__ == '__main__':    
-    Wilcoxon(sys.argv[1],sys.argv[2])
+    ttest(sys.argv[1],sys.argv[2])

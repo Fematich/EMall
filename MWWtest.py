@@ -6,16 +6,17 @@
 """
 import logging,sys,subprocess
 from pymongo import MongoClient
+from scipy.stats import mannwhitneyu
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-logger=logging.getLogger("TODO")
+logger=logging.getLogger("MWWtest")
 
 
 client = MongoClient()
 db = client['evaluation']
 datastore = db['compare_event']
 
-def Wilcoxon(name1,name2):
+def MWWtest(name1,name2):
     for big in [True,False]:
         F1,F2=[],[]
         recalls1,recalls2=[],[]
@@ -39,14 +40,16 @@ def Wilcoxon(name1,name2):
 #            for items in zip(precisions1,precisions2):
 #                precisionf.write("%f %f\n"%(items[0],items[1]))
 #        subprocess.call('./wilcoxon tmp/precision 90.0',shell=True)
-        with open('tmp/F','w') as Ff:
-            for items in zip(F1,F2):
-                Ff.write("%f %f\n"%(items[0],items[1]))
-        subprocess.call('./wilcoxon tmp/F 90.0',shell=True)
+        print 'precisions '+str(big)
+        print mannwhitneyu(precisions1,precisions2)
+        print 'recalls '+str(big)
+        print mannwhitneyu(recalls1,recalls2)
+        print 'F1 '+str(big)
+        print mannwhitneyu(F1,F2)
 #        with open('tmp/MAP','w') as MAPf:
 #            for items in zip(MAP1,MAP2):
 #                MAPf.write("%f %f\n"%(items[0],items[1]))
 #        subprocess.call('./wilcoxon tmp/MAP',shell=True)
 
 if __name__ == '__main__':    
-    Wilcoxon(sys.argv[1],sys.argv[2])
+    MWWtest(sys.argv[1],sys.argv[2])

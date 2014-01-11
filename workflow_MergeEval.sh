@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for splitdir in /home/mfeys/work/data/splits2/sym_log_boost_splits1550
+for splitdir in /home/mfeys/work/data/splits2/sym_log_boost_splits1560
  do
 	for min_sim in $(seq 0.1 0.1 0.5)
 	do

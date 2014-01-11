@@ -1,7 +1,8 @@
 #!/bin/bash
 #parameters: splitname min-sim min-score
 splitsource=$1
-eventrootdir="/media/DB58-DB0C/event_mall/events"
+#eventrootdir="/media/DB58-DB0C/event_mall/events"
+eventrootdir="/home/mfeys/work/data/events"
 splitname=$(echo $splitsource | cut -d "/" -f 7)
 splitdir=/home/mfeys/work/data/event_mall/splits
 ENV="/home/mfeys/work/data/event_mall"
