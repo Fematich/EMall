@@ -24,6 +24,8 @@ if __name__ == "__main__":
     min_sim=sys.argv[2]
     min_msim=sys.argv[3]
     max_msim=sys.argv[4]
+    if float(min_msim)==0:
+        cev_min={}
     cev_min=evaluation.compare_events.find_one({"parameters.info.dataset" : "event_mall","parameters.info.splitname":split_name,"parameters.info.min_sim":min_msim})
     cev_max=evaluation.compare_events.find_one({"parameters.info.dataset" : "event_mall","parameters.info.splitname":split_name,"parameters.info.min_sim":max_msim})
     cev_new=evaluation.compare_events.find_one({"parameters.info.dataset" : "event_mall","parameters.info.splitname":split_name,"parameters.info.min_sim":min_sim})
