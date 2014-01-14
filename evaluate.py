@@ -106,6 +106,66 @@ def compare_events(name,info,big):
     ret['n_events']=len(retrieved_events)
     return ret
 
+@MongoStore
+def compare_events_cos(name,info,big):
+    if big:
+        eventset=sig_set
+    else:
+        eventset=mod_set
+    ret={'cos_sim':0,'precision':0,'recall':0,'F1':0,'AP':0}
+    non_match=[]
+    g_count=-1
+    for g_id in eventset:
+        g_count+=1
+        g_event=gold_events[g_id]
+        r_count=-1
+        max_match=0
+        match_event=-1
+        for r_event in retrieved_events:
+            r_count+=1
+            if cosine_similarity(r_event,g_event)>max_match:
+                match_event=r_count
+                max_match=match(r_event,g_event)
+        logger.info('comparing event %d with event %d'%(g_count,match_event))
+        if max_match!=0:
+            event_res=compare_event(name=name,info=info,g_id=g_id,r_count=match_event,big=big)
+            for key in ret:
+                ret[key]+=event_res[key]
+        else:
+            non_match.append(g_id)
+    for key in ret:
+        ret[key]=float(ret[key])/g_count
+    ret['MAP']=ret.pop('AP')
+    ret['non_match']=non_match
+    ret['n_events']=len(retrieved_events)
+    return ret
+
+@MongoStore
+def compare_event_cos(name,info,g_id,r_count,big):
+    #filter the articles that aren't in the daterange of the event out...
+#    dates_gold=set([dates[doc] for doc in gold_events[g_count]])
+    gold=set([])
+    dates_gold=set([])
+    non_corpus_docs=0
+    for doc in gold_events[g_id]:
+        try:
+            dates_gold.add(dates[doc])
+            gold.add(doc)
+        except KeyError:
+            non_corpus_docs+=1
+    retrieved=set([doc for doc in retrieved_events[r_count] if min(dates_gold)<=dates[doc]<=max(dates_gold)])
+    order_retrieved=set([doc for doc in order_retrieved_events[r_count] if min(dates_gold)<=dates[doc[0]]<=max(dates_gold)])
+    ret={}
+    ret['AP']=average_precision(gold,order_retrieved) # change retrieved from a set of tuples to a set of integers!!!
+    ret['n_g_docs']=len(gold)
+    ret['n_r_docs']=len(retrieved)
+    ret['n_matching_docs']=len(gold)-len(gold-retrieved)    
+    ret['cos_sim']=cosine_similarity(gold,retrieved)
+    ret['precision']=precision(gold,retrieved)
+    ret['recall']=recall(gold,retrieved)
+    ret['F1']=F1(ret['precision'],ret['recall'])
+    ret['non_corpus_docs']=non_corpus_docs
+    return ret
 
 if __name__ == '__main__':
     name=sys.argv[1]

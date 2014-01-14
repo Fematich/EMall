@@ -9,16 +9,16 @@ max_iter=4
 min_diff=0.01
 for splitdir in /home/mfeys/work/data/splits2/$split_name
  do
-	for min_score in 0.1
-	do
-		for min_size in 2
-		do
-			CMD="/home/mfeys/work/EMall/merge_eval.sh $splitdir $min_msim $min_score $min_size"
-			echo $CMD;$CMD	
-			CMD="/home/mfeys/work/EMall/merge_eval.sh $splitdir $max_msim $min_score $min_size"
-			echo $CMD;$CMD
-		done
-	done
+	#for min_score in 0.1
+	#do
+	#	for min_size in 2
+	#	do
+	#		CMD="/home/mfeys/work/EMall/merge_eval.sh $splitdir $min_msim $min_score $min_size"
+	#		echo $CMD;$CMD	
+	#		CMD="/home/mfeys/work/EMall/merge_eval.sh $splitdir $max_msim $min_score $min_size"
+	#		echo $CMD;$CMD
+	#	done
+	#done
 	iter=0
 	while [ $iter -lt $max_iter ] && [ $(echo $diff'>'$min_diff | bc -l) -eq  1 ]
 	do
