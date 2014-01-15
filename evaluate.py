@@ -4,12 +4,16 @@
 @date:      Wed Dec 11 12:42:05 2013
 """
 from mongostore.mongostore import MongoStore
+import pymongo
 import logging, subprocess, sys
 from config import fgold, fevent_index, faevents
 from utils import *
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("TODO")
+db = pymongo.MongoClient()
+evaluation=db.evaluation
+compare_eventset=evaluation.compare_events
 
 def wccount(filename):
     out = subprocess.Popen(['wc', '-l', filename],
@@ -76,8 +80,10 @@ def compare_event(name,info,g_id,r_count,big):
 def compare_events(name,info,big):
     if big:
         eventset=sig_set
-    else:
+    elif big==False:
         eventset=mod_set
+    else:
+        eventset=betw_set
     ret={'cos_sim':0,'precision':0,'recall':0,'F1':0,'AP':0}
     non_match=[]
     g_count=-1
@@ -110,8 +116,10 @@ def compare_events(name,info,big):
 def compare_events_cos(name,info,big):
     if big:
         eventset=sig_set
-    else:
+    elif big==False:
         eventset=mod_set
+    else:
+        eventset=betw_set
     ret={'cos_sim':0,'precision':0,'recall':0,'F1':0,'AP':0}
     non_match=[]
     g_count=-1
@@ -125,10 +133,10 @@ def compare_events_cos(name,info,big):
             r_count+=1
             if cosine_similarity(r_event,g_event)>max_match:
                 match_event=r_count
-                max_match=match(r_event,g_event)
+                max_match=cosine_similarity(r_event,g_event)
         logger.info('comparing event %d with event %d'%(g_count,match_event))
         if max_match!=0:
-            event_res=compare_event(name=name,info=info,g_id=g_id,r_count=match_event,big=big)
+            event_res=compare_event_cos(name=name,info=info,g_id=g_id,r_count=match_event,big=big)
             for key in ret:
                 ret[key]+=event_res[key]
         else:
@@ -189,7 +197,13 @@ if __name__ == '__main__':
     #match both
     sig_set=[st for st in gold_events if len(gold_events[st])>=300]
     mod_set=[st for st in gold_events if 10<len(gold_events[st])<=100]
-    print compare_events(name=name,info=info, big=False)
-    print compare_events(name=name, info=info, big=True)
+    betw_set=[st for st in gold_events if 100<len(gold_events[st])<300]
+#    print compare_events(name=name,info=info, big=False)
+#    print compare_events(name=name, info=info, big=True)
+    if len([ 1 for el in compare_eventset.find({"parameters.info.dataset" : "event_mall","parameters.name":name,"parameters.big":None})])==0:
+        print compare_events(name=name, info=info, big=None)
+    print compare_events_cos(name=name,info=info, big=True)
+    print compare_events_cos(name=name,info=info, big=None)
+    print compare_events_cos(name=name,info=info, big=False)
     
     logger.info('done!!!')

@@ -5,6 +5,7 @@
 """
 import logging, pymongo,os, subprocess
 import cPickle as pickle
+from datetime import datetime
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("update mongo")
 
@@ -59,7 +60,22 @@ def add_n_retrieved_events():
     for cev in compare_events.find({"parameters.info.dataset" : "event_mall","result.n_events":{"$exists":0}}):
         compare_events.update({"_id":cev["_id"]}, {"$set": {"result.n_events":get_n_events(cev["parameters"]["name"]) }}) 
 
+def removeduplicates():
+    compare_events=evaluation.compare_events
+    compare_event=evaluation.compare_event
+    for cev in compare_events.find({"parameters.info.dataset" : "event_mall"}):
+        events=set([])
+        for ce in compare_event.find({"parameters.info.dataset" : "event_mall","parameters.name":cev['parameters']['name']}):
+            if ce["parameters"]["g_id"] in events:
+                max_date='1990-01-01'            
+                for ev in compare_event.find({"parameters.info.dataset" : "event_mall","parameters.name":cev['parameters']['name'],"parameters.g_id":ce["parameters"]["g_id"]}):
+                    if ev["timestamp"]>max_date:
+                        max_date=ev["timestamp"]
+                print 'removing %s from %s with timestamp %s'%(ce["parameters"]["g_id"],cev['parameters']['name'],ev["timestamp"])
+                compare_event.remove({"parameters.info.dataset" : "event_mall","parameters.name":cev['parameters']['name'],"parameters.g_id":ce["parameters"]["g_id"],"timestamp":max_date})
+            events.add(ce["parameters"]["g_id"])
+
 
 if __name__ == '__main__':   
 #    add_g_ids()
-    add_n_retrieved_events()
+    removeduplicates()

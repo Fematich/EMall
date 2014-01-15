@@ -17,7 +17,7 @@ db = client['evaluation']
 datastore = db['compare_event']
 
 def MWWtest(name1,name2):
-    for big in [True,False]:
+    for big in [True,False,None]:
         F1,F2=[],[]
         recalls1,recalls2=[],[]
         precisions1,precisions2=[],[]

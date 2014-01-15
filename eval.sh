@@ -1,6 +1,6 @@
 #!/bin/bash
 
-event_dir=/home/mfeys/work/data/events
+event_dir=/media/DB58-DB0C/event_mall/events
 ENV=/home/mfeys/work/data/event_mall
 
 DATE_CMD="date +%Y%m%d%H:%M:%S"
@@ -25,7 +25,7 @@ for edir in $event_dir/*
 			msim=$(echo $event_name | cut -d "d" -f 2| cut -d "m" -f 1)	
 			mscore=$(echo $event_name | cut -d "d" -f 2| cut -d "m" -f 2|cut -d "s" -f 1)
 			msize=$(echo $event_name | cut -d "d" -f 2| cut -d "m" -f 2|cut -d "s" -f 2)	
-			CMD="python /home/mfeys/work/EMall/evaluate.py $event_name splitname=$sname min_sim=$msim min_score=$mscore min_size=$msize evfile=$edir/aevents events_index=$edir/events_index"
+			CMD="python /home/mfeys/work/EMall/evaluate.py $event_name splitname=$sname min_sim=$msim min_score=$mscore min_size=$msize dataset=event_mall"
 			echo $CMD; $CMD
 	done
 log_finish $INST
