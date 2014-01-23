@@ -8,6 +8,7 @@ import os
 envdir=os.path.abspath('../../data/event_mall/')
 datadir=os.path.join(envdir,'dat180')
 indexdir=os.path.join(envdir,'index')
+termsindexdir=os.path.join(envdir,'termindex')
 burstindexdir=os.path.join(envdir,'burstindex')
 dateindexdir=os.path.join(envdir,'dateindex')
 vectordir=os.path.join(envdir,'vectors')
