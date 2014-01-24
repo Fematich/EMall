@@ -94,13 +94,13 @@ def generate_matrix(month):
             for term, tf in v:
                if termsearcher.document(term=term)!=None:
                    nb+=1
-                   score=1
+                   score=1.0
                    if term in bursts:
                        for burst in bursts[term]:
                            if burst[1][0] <= date <= burst[1][1]: 
                                score+=float(burst[2])/maxweight
                                break
-                   docstring+='%s/%s/%d '%(term,tf,score)
+                   docstring+='%s/%s/%s '%(term,tf,str(score))
                    docscore+=score
                    v_matrix.extend([str(termsearcher.document(term=term)['tid']),score])    
             if len(v_matrix)>2*minlen:

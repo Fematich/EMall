@@ -106,7 +106,7 @@ def generate_matrix(month):
                                score*=float(burst[2])
                            elif boost==2:
                                score*=np.log(float(burst[2]))
-                           docstring+='%s-%s-%s/%s/%d '%(burst[1][0].strftime('%Y%m%d'),burst[1][1].strftime('%Y%m%d'),term,tf,score)
+                           docstring+='%s-%s-%s/%s/%s '%(burst[1][0].strftime('%Y%m%d'),burst[1][1].strftime('%Y%m%d'),term,tf,str(score))
                            docscore+=score
                            v_matrix.extend([str(burst[0]),score])    
             if len(v_matrix)>2*minlen:
