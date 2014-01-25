@@ -43,7 +43,7 @@ def getweight(tf,term):
     if tf_form==1:
         weight=tf * np.log(total_ndocs/df);
     else:
-        weight=tf * np.log(total_ndocs/1) + 1
+        weight=tf * np.log(total_ndocs/df) + 1
     return weight
     
 def generate_matrix(month):
@@ -79,7 +79,7 @@ def generate_matrix(month):
                if termsearcher.document(term=term)!=None:
                    nb+=1
                    score=getweight(tf,term)
-                   docstring+='%s/%s/%d '%(term,tf,score)
+                   docstring+='%s/%s/%s '%(term,tf,str(score))
                    docscore+=score
                    v_matrix.extend([str(termsearcher.document(term=term)['tid']),score])    
             if len(v_matrix)>2*minlen:
