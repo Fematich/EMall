@@ -1,6 +1,5 @@
 #!/bin/bash
 
-event_dir=/media/DB58-DB0C/event_mall/events
 ENV=/home/mfeys/work/data/event_mall
 
 DATE_CMD="date +%Y%m%d%H:%M:%S"
@@ -30,7 +29,7 @@ log_finish() {
 #	done
 #log_finish $INST
 
-event_dir=/home/mfeys/work/data/events
+event_dir=/home/mfeys/work/data/events2
 INST="evaluate events vs the gold events"
 log_start $INST
 for edir in $event_dir/*
